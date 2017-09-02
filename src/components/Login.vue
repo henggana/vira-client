@@ -2,9 +2,8 @@
   <div>
     <div class="measure-narrow center">
       <h1 class="mt5">Login</h1>
-      <form 
-        action=""
-        class="">
+      <form
+        @submit.prevent="submit">
         <div class="mt3">
           <label
             for="login-username"
@@ -36,7 +35,8 @@
             class="b ph3 pv2 input-reset ba b--blue bg-transparent hover-bg-navy
                    pointer f6 dib white bg-blue br1"
             type="submit"
-            value="Sign in"
+            :value="submitText"
+            :disabled="isLoggingIn"
           />
         </div>
       </form>
@@ -45,8 +45,31 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: 'login',
+  computed: {
+    ...mapState({
+      isLoggingIn: state => state.auth.isLoggingIn,
+      isAuthenticated: state => state.auth.isAuthenticated,
+    }),
+    submitText() {
+      return this.isLoggingIn ? 'Logging in ...' : 'Login';
+    },
+  },
+  watch: {
+    isAuthenticated() {
+      if (this.isAuthenticated) {
+        this.$router.replace('/dashboard');
+      }
+    },
+  },
+  methods: {
+    submit() {
+      this.$store.dispatch('login');
+    },
+  },
 };
 </script>
 
