@@ -14,6 +14,9 @@ export default {
   components: {
     'v-navbar': Navbar,
   },
+  mounted() {
+    console.log(this.$store.state.name);
+  },
 };
 </script>
 
