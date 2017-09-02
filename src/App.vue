@@ -11,7 +11,10 @@ export default {
 };
 </script>
 
-<style>
+<style lang="scss">
+@import "~tachyons/css/tachyons.css";
+@import "~colors.css/css/colors.css";
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
