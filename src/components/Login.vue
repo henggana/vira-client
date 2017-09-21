@@ -1,12 +1,17 @@
 <script>
 import { mapState } from 'vuex';
-
+import { required } from 'vuelidate/lib/validators';
 
 export default {
   name: 'login',
-  data: () => ({
-    errors1: this.errors || null,
-  }),
+  validations: {
+    username: {
+      required,
+    },
+    password: {
+      required,
+    },
+  },
   computed: {
     ...mapState({
       isLoggingIn: state => state.auth.isLoggingIn,
@@ -32,6 +37,9 @@ export default {
     submitText() {
       return this.isLoggingIn ? 'Logging in ...' : 'Login';
     },
+    disableSubmit() {
+      return this.$v.$dirty && this.$v.$invalid;
+    },
   },
   watch: {
     isAuthenticated() {
@@ -39,16 +47,12 @@ export default {
         this.$router.replace('/dashboard');
       }
     },
-    errors() {
-      console.log('errors', this.errors);
-    },
   },
   methods: {
     submit() {
-      this.$validator.validateAll().then((valid) => {
-        if (!valid) return;
-        this.$store.dispatch('login');
-      });
+      this.$v.$touch();
+      if (this.$v.$invalid) return;
+      this.$store.dispatch('login');
     },
   },
 };
@@ -79,14 +83,14 @@ export default {
             type="text"
             class="pa2 input-reset ba bg-transparent w-100"
             placeholder="username"
-            v-model="username"
-            v-validate="'required'"
+            v-model.trim="username"
+            @input="$v.username.$touch()"
           />
           <div
             class="mt1 light-red"
-            v-show="errors.has('username')"
+            v-show="$v.username.$error"
           >
-            {{ errors.first('username')}}
+            Username is can not be blank
           </div>
         </div>
         <div class="mt3">
@@ -101,23 +105,23 @@ export default {
             name="password"
             class="pa2 input-reset ba bg-transparent w-100"
             placeholder="********"
-            v-model="password"
-            v-validate="'required'"
+            v-model.trim="password"
+            @input="$v.password.$touch()"
           />
           <div
             class="mt1 light-red"
-            v-show="errors.has('password')"  
+            v-show="$v.password.$error"  
           >
-            {{ errors.first('password') }}
+            Password can not be blank
           </div>
         </div>
         <div class="mt3">
           <input
-            class="b ph3 pv2 input-reset ba b--blue bg-transparent hover-bg-navy
-                   pointer f6 dib white bg-blue br1"
+            class="b ph3 pv2 input-reset ba pointer f6 dib white br1"
+            :class="{ 'bg-gray b--gray': disableSubmit, 'bg-blue hover-bg-navy b--blue': !disableSubmit }"
             type="submit"
             :value="submitText"
-            :disabled="isLoggingIn || errors.any()"
+            :disabled="isLoggingIn || disableSubmit"
           />
         </div>
       </form>

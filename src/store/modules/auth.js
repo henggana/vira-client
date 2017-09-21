@@ -5,6 +5,8 @@ export default {
     isAuthenticated: false,
     isLoggingIn: false,
     isLoginFailure: false,
+    username: '',
+    password: '',
   },
   mutations: {
     loginRequest(state) {
