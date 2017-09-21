@@ -4,11 +4,31 @@ import { mapState } from 'vuex';
 
 export default {
   name: 'login',
+  data: () => ({
+    errors1: this.errors || null,
+  }),
   computed: {
     ...mapState({
       isLoggingIn: state => state.auth.isLoggingIn,
       isAuthenticated: state => state.auth.isAuthenticated,
+      isLoginFailure: state => state.auth.isLoginFailure,
     }),
+    username: {
+      get() {
+        return this.$store.state.auth.username;
+      },
+      set(value) {
+        this.$store.commit('updateUsername', value);
+      },
+    },
+    password: {
+      get() {
+        return this.$store.state.auth.password;
+      },
+      set(value) {
+        this.$store.commit('updatePassword', value);
+      },
+    },
     submitText() {
       return this.isLoggingIn ? 'Logging in ...' : 'Login';
     },
@@ -18,6 +38,9 @@ export default {
       if (this.isAuthenticated) {
         this.$router.replace('/dashboard');
       }
+    },
+    errors() {
+      console.log('errors', this.errors);
     },
   },
   methods: {
@@ -36,6 +59,12 @@ export default {
   <div>
     <div class="measure-narrow center">
       <h1 class="mt5">Login</h1>
+      <div
+        class="mt1 light-red"
+        v-show="isLoginFailure"
+      >
+        Username or password is invalid
+      </div>
       <form
         @submit.prevent="submit">
         <div class="mt3">
@@ -50,6 +79,7 @@ export default {
             type="text"
             class="pa2 input-reset ba bg-transparent w-100"
             placeholder="username"
+            v-model="username"
             v-validate="'required'"
           />
           <div
@@ -70,7 +100,8 @@ export default {
             type="password"
             name="password"
             class="pa2 input-reset ba bg-transparent w-100"
-            placeholder="********" 
+            placeholder="********"
+            v-model="password"
             v-validate="'required'"
           />
           <div
@@ -86,7 +117,7 @@ export default {
                    pointer f6 dib white bg-blue br1"
             type="submit"
             :value="submitText"
-            :disabled="isLoggingIn"
+            :disabled="isLoggingIn || errors.any()"
           />
         </div>
       </form>
