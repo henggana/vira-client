@@ -1,3 +1,5 @@
+import { fakeRequest } from '../../libs';
+
 export default {
   state: {
     isAuthenticated: false,
@@ -22,7 +24,16 @@ export default {
   actions: {
     login(context) {
       context.commit('loginRequest');
-      setTimeout(() => context.commit('loginSuccess'), 300);
+
+      const payload = {
+        username: 'test',
+        password: '',
+      };
+
+      fakeRequest('/api/v1/login', payload)
+      .then((response) => {
+        context.commit('loginSuccess', response);
+      });
     },
   },
 
