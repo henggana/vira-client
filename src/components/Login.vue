@@ -48,6 +48,11 @@ export default {
       }
     },
   },
+  created() {
+    if (this.isAuthenticated) {
+      this.$router.replace('/dashboard');
+    }
+  },
   methods: {
     submit() {
       this.$v.$touch();

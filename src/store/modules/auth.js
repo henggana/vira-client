@@ -1,8 +1,9 @@
+import Cookies from 'js-cookie';
 import { fakeRequest } from '../../libs';
 
 export default {
   state: {
-    isAuthenticated: false,
+    isAuthenticated: !!Cookies.get('auth'),
     isLoggingIn: false,
     isLoginFailure: false,
     username: '',
@@ -16,6 +17,8 @@ export default {
       state.isLoggingIn = false;
       state.isAuthenticated = true;
       state.isLoginFailure = false;
+      state.username = '';
+      state.password = '';
     },
     loginFailure(state) {
       state.isLoggingIn = false;
@@ -46,11 +49,21 @@ export default {
         console.log('fakeRequested - /api/v1/login - response:', response);
 
         if (payload.username === 'admin' && payload.password === 'password') {
+          const auth = {
+            user: {
+              username: 'admin',
+            },
+          };
+          Cookies.set('auth', JSON.stringify(auth));
           context.commit('loginSuccess', response);
         } else {
           context.commit('loginFailure', response);
         }
       });
+    },
+    logout(context) {
+      Cookies.remove('auth');
+      context.commit('logout');
     },
   },
 
