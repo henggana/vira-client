@@ -21,6 +21,7 @@
 
 // INFO: EXAMPLE BASED ON https://github.com/David-Desmaisons/draggable-example/blob/master/src/components/Hello.vue
 
+import { mapState } from 'vuex';
 import draggable from 'vuedraggable';
 
 const message = ['vue.draggable', 'draggable', 'component', 'for', 'vue.js 2.0', 'based', 'on', 'Sortablejs'];
@@ -47,6 +48,9 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      isAuthenticated: state => state.auth.isAuthenticated,
+    }),
     dragOptions() {
       return {
         animation: 0,
@@ -63,6 +67,11 @@ export default {
     },
   },
   watch: {
+    isAuthenticated() {
+      if (!this.isAuthenticated) {
+        this.$router.replace('/login');
+      }
+    },
     isDragging(newValue) {
       if (newValue) {
         this.delayedDragging = true;
@@ -85,7 +94,7 @@ export default {
   },
   created() {
     if (!this.$store.state.auth || !this.$store.state.auth.isAuthenticated) {
-      this.$router.replace('/');
+      this.$router.replace('/login');
     }
   },
 };
