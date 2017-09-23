@@ -1,3 +1,9 @@
+<template>
+  <div class="pa3">
+    <h1>{{ title }}</h1>
+  </div>
+</template>
+
 <script>
 import { mapState } from 'vuex';
 
@@ -27,10 +33,3 @@ export default {
   },
 };
 </script>
-
-<template>
-  <div class="pa3">
-    <h1>{{ title }}</h1>
-  </div>
-</template>
-

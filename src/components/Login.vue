@@ -1,69 +1,3 @@
-<script>
-import { mapState } from 'vuex';
-import { required } from 'vuelidate/lib/validators';
-
-export default {
-  name: 'login',
-  validations: {
-    username: {
-      required,
-    },
-    password: {
-      required,
-    },
-  },
-  computed: {
-    ...mapState({
-      isLoggingIn: state => state.auth.isLoggingIn,
-      isAuthenticated: state => state.auth.isAuthenticated,
-      isLoginFailure: state => state.auth.isLoginFailure,
-    }),
-    username: {
-      get() {
-        return this.$store.state.auth.username;
-      },
-      set(value) {
-        this.$store.commit('updateUsername', value);
-      },
-    },
-    password: {
-      get() {
-        return this.$store.state.auth.password;
-      },
-      set(value) {
-        this.$store.commit('updatePassword', value);
-      },
-    },
-    submitText() {
-      return this.isLoggingIn ? 'Logging in ...' : 'Login';
-    },
-    disableSubmit() {
-      return this.$v.$dirty && this.$v.$invalid;
-    },
-  },
-  watch: {
-    isAuthenticated() {
-      if (this.isAuthenticated) {
-        this.$router.replace('/dashboard');
-      }
-    },
-  },
-  created() {
-    if (this.isAuthenticated) {
-      this.$router.replace('/dashboard');
-    }
-  },
-  methods: {
-    submit() {
-      this.$v.$touch();
-      if (this.$v.$invalid) return;
-      this.$store.dispatch('login');
-    },
-  },
-};
-</script>
-
-
 <template>
   <div>
     <div class="measure-narrow center">
@@ -134,5 +68,67 @@ export default {
   </div>
 </template>
 
+<script>
+import { mapState } from 'vuex';
+import { required } from 'vuelidate/lib/validators';
 
-
+export default {
+  name: 'login',
+  validations: {
+    username: {
+      required,
+    },
+    password: {
+      required,
+    },
+  },
+  computed: {
+    ...mapState({
+      isLoggingIn: state => state.auth.isLoggingIn,
+      isAuthenticated: state => state.auth.isAuthenticated,
+      isLoginFailure: state => state.auth.isLoginFailure,
+    }),
+    username: {
+      get() {
+        return this.$store.state.auth.username;
+      },
+      set(value) {
+        this.$store.commit('updateUsername', value);
+      },
+    },
+    password: {
+      get() {
+        return this.$store.state.auth.password;
+      },
+      set(value) {
+        this.$store.commit('updatePassword', value);
+      },
+    },
+    submitText() {
+      return this.isLoggingIn ? 'Logging in ...' : 'Login';
+    },
+    disableSubmit() {
+      return this.$v.$dirty && this.$v.$invalid;
+    },
+  },
+  watch: {
+    isAuthenticated() {
+      if (this.isAuthenticated) {
+        this.$router.replace('/dashboard');
+      }
+    },
+  },
+  created() {
+    if (this.isAuthenticated) {
+      this.$router.replace('/dashboard');
+    }
+  },
+  methods: {
+    submit() {
+      this.$v.$touch();
+      if (this.$v.$invalid) return;
+      this.$store.dispatch('login');
+    },
+  },
+};
+</script>
