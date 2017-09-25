@@ -4,13 +4,25 @@
       class="project__sidebar absolute top-0 bg-near-white br b--moon-gray"
       :style="{ height: height + 'px' }"
     >
-      <div class="project__sidebar-wrapper h-100">
+      <div class="project__sidebar-wrapper">
         <div class="project__sidebar-body w-100">
           <div class="dn">Project name</div>
           <span class="dn">Board name</span>
           <ul class="pa0">
-            <li class="list pa2 w-100 tc bt bb b--moon-gray hover-bg-light-gray pointer">AS</li>
-            <li class="list pa2 w-100 tc bb b--moon-gray hover-bg-light-gray pointer">BL</li>
+            <li
+              class="list pa2 w-100 tc hover-bg-light-gray pointer"
+              :class="{'bg-light-gray': activeMode === 'A'}"
+              @click="changeMode('A')"
+            >
+              A
+            </li>
+            <li
+              class="list pa2 w-100 tc hover-bg-light-gray pointer"
+              :class="{'bg-light-gray': activeMode === 'B'}"
+              @click="changeMode('B')"
+            >
+              B
+            </li>
           </ul>
         </div>
         <div class="project__sidebar-footer absolute bottom-0 tc w-100 pa1 bt b--moon-gray hover-bg-light-gray pointer ">
@@ -19,35 +31,144 @@
       </div>
     </div>
     <div class="project__content">
-      <div class="pa3">Backlog</div>
+      <div class="pa3 pb4 project__header">
+        <div class="mid-gray f6">My Board</div>
+        <div class="mt2 f4">Backlog</div>
+      </div>
+      <div class="project__list-container">
+        <div class="bb b--moon-gray pl3 pb2 gray project__filters">
+          Filter here
+        </div>
+        <div
+          class="project__plan"
+          :style="{ height: planHeight + 'px'}"
+        >
+          <div class="project__backlog-header">
+            <div class="pl3 pt3 b f6">My Sprint 5</div>
+            <draggable
+              class="mh3 mv2 project__issues-wrapper"
+              element="div"
+              v-model="orderedIssues"
+              :options="dragOptions"
+              :move="onMove"
+              @start="isDragging = true"
+              @end="isDragging = false"
+            >
+              <transition-group
+                type="transition"
+                :name="'flip=list'"
+              >
+                <div
+                  class="bt bl br b--moon-gray pv2 ph3 project__issue f6"
+                  :class="{ 'bb': index === orderedIssues.length - 1 }"
+                  v-for="(issue, index) in orderedIssues"
+                  :key="issue.order"
+                >
+                  {{ issue.title }}
+                </div>
+              </transition-group>
+            </draggable>
+
+            </div>
+            <div class="mv2 mh3 project__issues-active">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
   
 <script>
+import draggable from 'vuedraggable';
+
+const issues = [
+  {
+    id: 1, title: 'Issue #1',
+  },
+  {
+    id: 2, title: 'Issue #2',
+  },
+  {
+    id: 3, title: 'Issue #3',
+  },
+  {
+    id: 4, title: 'Issue #4',
+  },
+];
+
 export default {
   name: 'project',
+  components: {
+    draggable,
+  },
   data() {
     return {
       height: window.innerHeight - 50,
+      planHeight: window.innerHeight - 50 - 122,
+      activeMode: 'A',
+      orderedIssues: issues.map((issue, index) => ({
+        title: issue.title,
+        order: index + 1,
+        fixed: false,
+      })),
+      editable: true,
+      isDragging: false,
+      delayedDragging: false,
     };
   },
+  computed: {
+    dragOptions() {
+      return {
+        animation: 0,
+        group: 'description',
+        disabled: !this.editable,
+        ghostClass: 'ghost',
+      };
+    },
+  },
   mounted() {
+    console.log('data', this);
     this.updateHeight();
-    console.log('height', this.height);
     window.addEventListener('resize', () => {
-      console.log('resize');
       this.updateHeight();
     });
   },
   methods: {
     updateHeight() {
-      this.height = window.innerHeight - 50;
+      const newWinHeight = window.innerHeight;
+      const newHeight = newWinHeight - 50;
+      if (newHeight !== this.height) {
+        this.height = newHeight;
+      }
+
+      const newPlanHeight = newWinHeight - 50 - 122;
+      if (newPlanHeight !== this.planHeight) {
+        this.planHeight = newPlanHeight;
+      }
+    },
+    changeMode(mode) {
+      this.activeMode = mode;
+    },
+    onMove({ relatedContext, draggedContext }) {
+      const relatedElement = relatedContext.element;
+      const draggedElement = draggedContext.element;
+      return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed;
     },
   },
   watch: {
     height() {
       console.log(this.height);
+    },
+    isDragging(newValue) {
+      if (newValue) {
+        this.delayedDragging = true;
+        return;
+      }
+
+      this.$nextTick(() => {
+        this.delayedDragging = false;
+      });
     },
   },
 };
