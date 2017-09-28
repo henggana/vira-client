@@ -51,8 +51,9 @@
               v-model="orderedIssues"
               :options="dragOptions"
               :move="onMove"
-              @start="isDragging = true"
-              @end="isDragging = false"
+              @start="onStart"
+              @end="onEnd"
+              @sort="onSort"
             >
               <transition-group
                 type="transition"
@@ -121,7 +122,11 @@ export default {
     dragOptions() {
       return {
         animation: 0,
-        group: 'description',
+        group: {
+          name: 'description',
+          pull: false,
+        },
+        clone: false,
         disabled: !this.editable,
         ghostClass: 'ghost',
       };
@@ -150,10 +155,31 @@ export default {
     changeMode(mode) {
       this.activeMode = mode;
     },
-    onMove({ relatedContext, draggedContext }) {
-      const relatedElement = relatedContext.element;
-      const draggedElement = draggedContext.element;
+    onStart() {
+      this.isDragging = true;
+    },
+    onEnd(evt) {
+      this.isDragging = false;
+      if (evt.newIndex === this.orderedIssues.length - 1) {
+        evt.item.classList.add('bb');
+      }
+    },
+    onSort() {
+    },
+    onMove(evt) {
+      const relatedElement = evt.relatedContext.element;
+      const draggedElement = evt.draggedContext.element;
+
+      if (evt.draggedContext.futureIndex === this.orderedIssues.length - 1) {
+        evt.dragged.classList.add('bb');
+      } else {
+        evt.dragged.classList.remove('bb');
+      }
+
       return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed;
+    },
+    onClone(evt) {
+      evt.item.classList.add('bb');
     },
   },
   watch: {
