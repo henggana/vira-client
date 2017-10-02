@@ -54,6 +54,7 @@
               @start="onStart"
               @end="onEnd"
               @sort="onSort"
+              @clone="onClone"
             >
               <transition-group
                 type="transition"
@@ -124,9 +125,9 @@ export default {
         animation: 0,
         group: {
           name: 'description',
-          pull: false,
+          // pull: false,
         },
-        clone: false,
+        // clone: false,
         disabled: !this.editable,
         ghostClass: 'ghost',
       };
@@ -163,6 +164,10 @@ export default {
       if (evt.newIndex === this.orderedIssues.length - 1) {
         evt.item.classList.add('bb');
       }
+      this.$nextTick();
+      setTimeout(() => {
+        this.$forceUpdate();
+      }, 75);
     },
     onSort() {
     },
@@ -176,9 +181,14 @@ export default {
         evt.dragged.classList.remove('bb');
       }
 
+      if (evt.draggedContext.futureIndex === this.orderedIssues.length - 2) {
+        evt.related.classList.add('bb');
+      }
+
       return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed;
     },
     onClone(evt) {
+      // debugger;
       evt.item.classList.add('bb');
     },
   },
