@@ -63,7 +63,7 @@
                 :name="'flip=list'"
               >
                 <div
-                  class="bt bl br b--moon-gray pv2 ph3 project__issue f6"
+                  class="bt bl br b--moon-gray pv2 ph3 f6 hover-bg-light-gray project__issue"
                   :class="{ 'bb': index === orderedIssues.length - 1 }"
                   v-for="(issue, index) in orderedIssues"
                   :key="issue.order"
@@ -83,7 +83,7 @@
     </div>
   </div>
 </template>
-  
+
 <script>
 import draggable from 'vuedraggable';
 
@@ -106,7 +106,7 @@ export default {
     dragOptions() {
       return {
         animation: 0,
-        group: 'description',
+        group: 'issues',
         disabled: !this.editable,
         ghostClass: 'ghost',
       };
@@ -208,5 +208,14 @@ export default {
     .project__content {
       padding-left: 56px;
     }
+
+    .project__issue {
+      &:hover {
+        cursor: move;
+      }
+    }
+  }
+  .ghost {
+    background: #eee;
   }
 </style>
