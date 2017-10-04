@@ -84,21 +84,6 @@
 <script>
 import draggable from 'vuedraggable';
 
-const issues = [
-  {
-    id: 1, title: 'Issue #1',
-  },
-  {
-    id: 2, title: 'Issue #2',
-  },
-  {
-    id: 3, title: 'Issue #3',
-  },
-  {
-    id: 4, title: 'Issue #4',
-  },
-];
-
 export default {
   name: 'project',
   components: {
@@ -109,11 +94,6 @@ export default {
       height: window.innerHeight - 50,
       planHeight: window.innerHeight - 50 - 122,
       activeMode: 'A',
-      orderedIssues: issues.map((issue, index) => ({
-        title: issue.title,
-        order: index + 1,
-        fixed: false,
-      })),
       editable: true,
       isDragging: false,
       delayedDragging: false,
@@ -123,18 +103,24 @@ export default {
     dragOptions() {
       return {
         animation: 0,
-        group: {
-          name: 'description',
-          // pull: false,
-        },
-        // clone: false,
+        group: 'description',
         disabled: !this.editable,
         ghostClass: 'ghost',
       };
     },
+    orderedIssues: {
+      set(newIssues) {
+        this.$store.dispatch('moveIssue', newIssues);
+      },
+      get() {
+        return this.$store.state.issues.data;
+      },
+    },
+  },
+  beforeMount() {
+    this.$store.dispatch('fetchListIssues');
   },
   mounted() {
-    console.log('data', this);
     this.updateHeight();
     window.addEventListener('resize', () => {
       this.updateHeight();
@@ -164,6 +150,7 @@ export default {
       if (evt.newIndex === this.orderedIssues.length - 1) {
         evt.item.classList.add('bb');
       }
+      console.log(evt);
       this.$nextTick();
       setTimeout(() => {
         this.$forceUpdate();
@@ -172,9 +159,6 @@ export default {
     onSort() {
     },
     onMove(evt) {
-      const relatedElement = evt.relatedContext.element;
-      const draggedElement = evt.draggedContext.element;
-
       if (evt.draggedContext.futureIndex === this.orderedIssues.length - 1) {
         evt.dragged.classList.add('bb');
       } else {
@@ -185,7 +169,7 @@ export default {
         evt.related.classList.add('bb');
       }
 
-      return (!relatedElement || !relatedElement.fixed) && !draggedElement.fixed;
+      return true;
     },
     onClone(evt) {
       // debugger;
