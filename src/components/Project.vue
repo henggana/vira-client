@@ -43,8 +43,10 @@
           class="project__plan"
           :style="{ height: planHeight + 'px'}"
         >
-          <div class="project__backlog-header">
-            <div class="pl3 pt3 b f6">My Sprint 5</div>
+          <div class="project__sprint-group">
+            <div class="project__backlog-header">
+              <div class="pl3 pt3 b f6">My Sprint 5</div>
+            </div>
             <draggable
               class="mh3 mv2 project__issues-wrapper"
               element="div"
@@ -70,9 +72,10 @@
                 </div>
               </transition-group>
             </draggable>
-
-            </div>
-            <div class="mv2 mh3 project__issues-active">
+          </div>
+          <div class="bt b--moon-gray mt4 project__backlog-group">
+            <div class="project__backlog-header">
+              <div class="pl3 pt3 b f6">Backlog</div>
             </div>
           </div>
         </div>
