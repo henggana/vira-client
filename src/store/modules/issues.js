@@ -7,6 +7,14 @@ export default {
     isListIssuesFailure: false,
     data: [],
   },
+  getters: {
+    activeIssues(state) {
+      return state.data.filter(item => item.isActive);
+    },
+    backlogIssues(state) {
+      return state.data.filter(item => !item.isActive);
+    },
+  },
   mutations: {
     listIssuesRequest(state) {
       state.isListIssuesRequest = true;
@@ -42,10 +50,35 @@ export default {
         context.commit('listIssuesFailure', response);
       });
     },
-    moveIssue(context, newIssues) {
-      newIssues.forEach((issue, index) => {
-        issue.order = index + 1;
+    moveIssue(context, payload) {
+      const { newIssuesList, isActive } = payload;
+      let currentActiveIssues = context.state.data.filter(issue => issue.isActive);
+      let currentBacklogIssues = context.state.data.filter(issue => !issue.isActive);
+
+      console.log('isActive', isActive);
+      console.log('newIssuesList', newIssuesList);
+
+      if (isActive) {
+        currentActiveIssues = newIssuesList;
+        currentActiveIssues.forEach((item) => {
+          item.isActive = true;
+        });
+      } else {
+        currentBacklogIssues = newIssuesList;
+        currentBacklogIssues.forEach((item) => {
+          item.isActive = false;
+        });
+      }
+
+      currentActiveIssues.forEach((item, index) => {
+        item.order = index + 1;
       });
+
+      currentBacklogIssues.forEach((item, index) => {
+        item.order = index + 1;
+      });
+
+      const newIssues = currentActiveIssues.concat(currentBacklogIssues);
       context.commit('updateListIssues', newIssues);
     },
   },

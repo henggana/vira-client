@@ -47,10 +47,10 @@
             <div class="project__backlog-header">
               <div class="pl3 pt3 b f6">My Sprint 5</div>
             </div>
-            <draggable
+            <v-draggable
               class="mh3 mv2 project__issues-wrapper"
               element="div"
-              v-model="orderedIssues"
+              v-model="activeIssues"
               :options="dragOptions"
               :move="onMove"
               @start="onStart"
@@ -62,21 +62,42 @@
                 type="transition"
                 :name="'flip=list'"
               >
-                <div
-                  class="bt bl br b--moon-gray pv2 ph3 f6 hover-bg-light-gray project__issue"
-                  :class="{ 'bb': index === orderedIssues.length - 1 }"
-                  v-for="(issue, index) in orderedIssues"
+                <v-issue
+                  v-for="(issue, index) in activeIssues"
+                  :issue="issue"
                   :key="issue.order"
-                >
-                  {{ issue.title }}
-                </div>
+                  :isLast="index === activeIssues.length - 1"
+                />
               </transition-group>
-            </draggable>
+            </v-draggable>
           </div>
           <div class="bt b--moon-gray mt4 project__backlog-group">
             <div class="project__backlog-header">
               <div class="pl3 pt3 b f6">Backlog</div>
             </div>
+            <v-draggable
+              class="mh3 mv2 project__issues-wrapper"
+              element="div"
+              v-model="backlogIssues"
+              :options="dragOptions"
+              :move="onMove"
+              @start="onStart"
+              @end="onEndBacklog"
+              @sort="onSort"
+              @clone="onClone"
+            >
+              <transition-group
+                type="transition"
+                :name="'flip=list'"
+              >
+                <v-issue
+                  v-for="(issue, index) in backlogIssues"
+                  :key="issue.order"
+                  :issue="issue"
+                  :isLast="index === backlogIssues.length - 1"
+                />
+              </transition-group>
+            </v-draggable>
           </div>
         </div>
       </div>
@@ -86,11 +107,13 @@
 
 <script>
 import draggable from 'vuedraggable';
+import issue from './Issue';
 
 export default {
   name: 'project',
   components: {
-    draggable,
+    'v-draggable': draggable,
+    'v-issue': issue,
   },
   data() {
     return {
@@ -113,10 +136,35 @@ export default {
     },
     orderedIssues: {
       set(newIssues) {
+        console.log('set orderedIssues');
         this.$store.dispatch('moveIssue', newIssues);
       },
       get() {
         return this.$store.state.issues.data;
+      },
+    },
+    activeIssues: {
+      set(newIssues) {
+        console.log('set active issues');
+        this.$store.dispatch('moveIssue', {
+          newIssuesList: newIssues,
+          isActive: true,
+        });
+      },
+      get() {
+        return this.$store.getters.activeIssues;
+      },
+    },
+    backlogIssues: {
+      set(newIssues) {
+        console.log('set backlog issues');
+        this.$store.dispatch('moveIssue', {
+          newIssuesList: newIssues,
+          isActive: false,
+        });
+      },
+      get() {
+        return this.$store.getters.backlogIssues;
       },
     },
   },
@@ -153,7 +201,18 @@ export default {
       if (evt.newIndex === this.orderedIssues.length - 1) {
         evt.item.classList.add('bb');
       }
-      console.log(evt);
+      console.log('onEnd', evt);
+      this.$nextTick();
+      setTimeout(() => {
+        this.$forceUpdate();
+      }, 75);
+    },
+    onEndBacklog(evt) {
+      this.isDragging = false;
+      if (evt.newIndex === this.orderedIssues.length - 1) {
+        evt.item.classList.add('bb');
+      }
+      console.log('onEnd', evt);
       this.$nextTick();
       setTimeout(() => {
         this.$forceUpdate();
@@ -162,6 +221,7 @@ export default {
     onSort() {
     },
     onMove(evt) {
+      console.log('onmove', evt);
       if (evt.draggedContext.futureIndex === this.orderedIssues.length - 1) {
         evt.dragged.classList.add('bb');
       } else {
@@ -175,6 +235,7 @@ export default {
       return true;
     },
     onClone(evt) {
+      console.log('onClone', evt);
       // debugger;
       evt.item.classList.add('bb');
     },
