@@ -4,7 +4,7 @@
       <router-link
         to="/"
         title="Home"
-        class="white link dim pointer"
+        class="b white link dim pointer"
       >
         Vira
       </router-link>
