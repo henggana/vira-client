@@ -35,6 +35,9 @@ export default {
     updateListIssues(state, newIssues) {
       state.data = newIssues;
     },
+    clearIssues(state) {
+      state.data = [];
+    },
   },
   actions: {
     fetchListIssues(context) {

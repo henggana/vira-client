@@ -145,10 +145,8 @@ export default {
       },
     },
   },
-  beforeMount() {
-    this.$store.dispatch('fetchListIssues');
-  },
   mounted() {
+    this.$store.dispatch('fetchListIssues');
     this.updateHeight();
     window.addEventListener('resize', () => {
       this.updateHeight();
@@ -232,6 +230,10 @@ export default {
     if (!this.$store.state.auth || !this.$store.state.auth.isAuthenticated) {
       this.$router.replace('/login');
     }
+  },
+  destroyed() {
+    this.$store.commit('clearIssues');
+    console.log('destroyed');
   },
 };
 </script>
