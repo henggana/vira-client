@@ -48,27 +48,21 @@
               <div class="pl3 pt3 b f6">My Sprint 5</div>
             </div>
             <v-draggable
-              class="mh3 mv2 project__issues-wrapper"
+              class="mh3 mv2 project__issues-wrapper project__issues-wrapper--issues"
               element="div"
-              v-model="activeIssues"
+              v-model="proxyActiveIssues"
               :options="dragOptions"
               :move="onMove"
               @start="onStart"
               @end="onEnd"
-              @sort="onSort"
               @clone="onClone"
             >
-              <transition-group
-                type="transition"
-                :name="'flip=list'"
-              >
-                <v-issue
-                  v-for="(issue, index) in activeIssues"
-                  :issue="issue"
-                  :key="issue.order"
-                  :isLast="index === activeIssues.length - 1"
-                />
-              </transition-group>
+              <v-issue
+                v-for="(issue, index) in proxyActiveIssues"
+                :issue="issue"
+                :key="issue.order"
+                :isLast="index === proxyActiveIssues.length - 1"
+              />
             </v-draggable>
           </div>
           <div class="bt b--moon-gray mt4 project__backlog-group">
@@ -76,27 +70,22 @@
               <div class="pl3 pt3 b f6">Backlog</div>
             </div>
             <v-draggable
-              class="mh3 mv2 project__issues-wrapper"
+              class="mh3 mv2 project__issues-wrapper project__issues-wrapper--backlog"
               element="div"
-              v-model="backlogIssues"
+              v-model="proxyBacklogIssues"
               :options="dragOptions"
               :move="onMove"
               @start="onStart"
-              @end="onEndBacklog"
-              @sort="onSort"
+              @end="onEnd"
               @clone="onClone"
             >
-              <transition-group
-                type="transition"
-                :name="'flip=list'"
-              >
-                <v-issue
-                  v-for="(issue, index) in backlogIssues"
-                  :key="issue.order"
-                  :issue="issue"
-                  :isLast="index === backlogIssues.length - 1"
-                />
-              </transition-group>
+
+              <v-issue
+                v-for="(issue, index) in proxyBacklogIssues"
+                :key="issue.order"
+                :issue="issue"
+                :isLast="index === proxyBacklogIssues.length - 1"
+              />
             </v-draggable>
           </div>
         </div>
@@ -123,6 +112,8 @@ export default {
       editable: true,
       isDragging: false,
       delayedDragging: false,
+      proxyActiveIssues: [],
+      proxyBacklogIssues: [],
     };
   },
   computed: {
@@ -135,34 +126,16 @@ export default {
       };
     },
     orderedIssues: {
-      set(newIssues) {
-        console.log('set orderedIssues');
-        this.$store.dispatch('moveIssue', newIssues);
-      },
       get() {
         return this.$store.state.issues.data;
       },
     },
     activeIssues: {
-      set(newIssues) {
-        console.log('set active issues');
-        this.$store.dispatch('moveIssue', {
-          newIssuesList: newIssues,
-          isActive: true,
-        });
-      },
       get() {
         return this.$store.getters.activeIssues;
       },
     },
     backlogIssues: {
-      set(newIssues) {
-        console.log('set backlog issues');
-        this.$store.dispatch('moveIssue', {
-          newIssuesList: newIssues,
-          isActive: false,
-        });
-      },
       get() {
         return this.$store.getters.backlogIssues;
       },
@@ -201,27 +174,17 @@ export default {
       if (evt.newIndex === this.orderedIssues.length - 1) {
         evt.item.classList.add('bb');
       }
-      console.log('onEnd', evt);
+      this.$store.dispatch('moveIssue', {
+        proxyActiveIssues: this.proxyActiveIssues,
+        proxyBacklogIssues: this.proxyBacklogIssues,
+      });
+
       this.$nextTick();
       setTimeout(() => {
         this.$forceUpdate();
       }, 75);
-    },
-    onEndBacklog(evt) {
-      this.isDragging = false;
-      if (evt.newIndex === this.orderedIssues.length - 1) {
-        evt.item.classList.add('bb');
-      }
-      console.log('onEnd', evt);
-      this.$nextTick();
-      setTimeout(() => {
-        this.$forceUpdate();
-      }, 75);
-    },
-    onSort() {
     },
     onMove(evt) {
-      console.log('onmove', evt);
       if (evt.draggedContext.futureIndex === this.orderedIssues.length - 1) {
         evt.dragged.classList.add('bb');
       } else {
@@ -235,15 +198,10 @@ export default {
       return true;
     },
     onClone(evt) {
-      console.log('onClone', evt);
-      // debugger;
       evt.item.classList.add('bb');
     },
   },
   watch: {
-    height() {
-      console.log(this.height);
-    },
     isDragging(newValue) {
       if (newValue) {
         this.delayedDragging = true;
@@ -253,6 +211,12 @@ export default {
       this.$nextTick(() => {
         this.delayedDragging = false;
       });
+    },
+    activeIssues(newList) {
+      this.proxyActiveIssues = newList;
+    },
+    backlogIssues(newList) {
+      this.proxyBacklogIssues = newList;
     },
   },
 };

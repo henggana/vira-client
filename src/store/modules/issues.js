@@ -51,34 +51,17 @@ export default {
       });
     },
     moveIssue(context, payload) {
-      const { newIssuesList, isActive } = payload;
-      let currentActiveIssues = context.state.data.filter(issue => issue.isActive);
-      let currentBacklogIssues = context.state.data.filter(issue => !issue.isActive);
+      const { proxyActiveIssues, proxyBacklogIssues } = payload;
 
-      console.log('isActive', isActive);
-      console.log('newIssuesList', newIssuesList);
-
-      if (isActive) {
-        currentActiveIssues = newIssuesList;
-        currentActiveIssues.forEach((item) => {
-          item.isActive = true;
-        });
-      } else {
-        currentBacklogIssues = newIssuesList;
-        currentBacklogIssues.forEach((item) => {
-          item.isActive = false;
-        });
-      }
-
-      currentActiveIssues.forEach((item, index) => {
-        item.order = index + 1;
+      proxyActiveIssues.forEach((item) => {
+        item.isActive = true;
       });
 
-      currentBacklogIssues.forEach((item, index) => {
-        item.order = index + 1;
+      proxyBacklogIssues.forEach((item) => {
+        item.isActive = false;
       });
 
-      const newIssues = currentActiveIssues.concat(currentBacklogIssues);
+      const newIssues = proxyActiveIssues.concat(proxyBacklogIssues);
       context.commit('updateListIssues', newIssues);
     },
   },
