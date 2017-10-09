@@ -95,6 +95,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import draggable from 'vuedraggable';
 import issue from './Issue';
 
@@ -117,6 +118,9 @@ export default {
     };
   },
   computed: {
+    ...mapState({
+      isAuthenticated: state => state.auth.isAuthenticated,
+    }),
     dragOptions() {
       return {
         animation: 0,
@@ -202,6 +206,11 @@ export default {
     },
   },
   watch: {
+    isAuthenticated() {
+      if (!this.isAuthenticated) {
+        this.$router.replace('/login');
+      }
+    },
     isDragging(newValue) {
       if (newValue) {
         this.delayedDragging = true;
@@ -218,6 +227,11 @@ export default {
     backlogIssues(newList) {
       this.proxyBacklogIssues = newList;
     },
+  },
+  created() {
+    if (!this.$store.state.auth || !this.$store.state.auth.isAuthenticated) {
+      this.$router.replace('/login');
+    }
   },
 };
 </script>
