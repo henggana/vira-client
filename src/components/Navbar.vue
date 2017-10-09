@@ -1,14 +1,23 @@
 <template>
   <nav class="dt w-100 border-box pa3 ph3-ns bg-blue">
-    <router-link
-      to="/"
-      title="Home"
-      class="dtc v-mid white link dim w-25 pointer"
-    >
-      Vira
-    </router-link>
+    <div class="dtc v-mid w-25">
+      <router-link
+        to="/"
+        title="Home"
+        class="b white link dim pointer"
+      >
+        Vira
+      </router-link>
+      <router-link
+        to="/project"
+        title="Project"
+        class="ml3 white link dim pointer"
+      >
+        Project
+      </router-link>
+    </div>
     <div class="dtc v-mid w-75 tr">
-      <router-link 
+      <router-link
         to="/login"
         title="About"
         class="link dim white f6 f5-ns dib mr3 mr4-ns pointer"
